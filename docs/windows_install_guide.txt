@@ -1,0 +1,231 @@
+# Windows Installation Guide - HR Vectorization System
+# =============================================================================
+# TESTED AND COMPATIBLE VERSIONS - SEPTEMBER 2025
+# =============================================================================
+
+# IMPORTANT: This guide has been tested with Python 3.11/3.12
+# Python 3.13 may cause problems - use 3.12 if possible
+
+# =============================================================================
+# 1. QUICK INSTALLATION (Recommended)
+# =============================================================================
+
+# Create virtual environment
+python -m venv capstone
+capstone\Scripts\activate
+
+# Update base tools (CRITICAL!)
+python -m pip install --upgrade pip setuptools wheel
+
+# Install dependencies in specific order
+pip install -r requirements.txt
+
+# =============================================================================
+# 2. STEP-BY-STEP INSTALLATION (For troubleshooting)
+# =============================================================================
+
+# Step 1: Base tools
+pip install --upgrade pip setuptools wheel
+
+# Step 2: NumPy FIRST (specific version for ChromaDB)
+pip install "numpy>=1.26.0,<2.0.0"
+
+# Step 3: ChromaDB (depends on NumPy < 2.0)
+pip install "chromadb>=0.4.15,<0.5.0"
+
+# Step 4: Sentence Transformers
+pip install "sentence-transformers>=2.2.2,<3.0.0"
+
+# Step 5: Document processing
+pip install "PyPDF2>=3.0.1,<4.0.0"
+pip install "pdfplumber>=0.9.0,<1.0.0"
+pip install "pytesseract>=0.3.10,<1.0.0"
+pip install "Pillow>=10.2.0,<11.0.0"
+
+# Step 6: Utilities
+pip install "python-dateutil>=2.8.2,<3.0.0"
+pip install "huggingface_hub>=0.16.0,<1.0.0"
+
+# Step 7: LangChain (compatible versions)
+pip install "pydantic>=2.5.0,<3.0.0"
+pip install "langchain>=0.2.0,<0.3.0"
+pip install "langchain-core>=0.2.0,<0.3.0"
+pip install "langchain-community>=0.2.0,<0.3.0"
+
+# Step 8: OpenAI integration (optional)
+pip install "langchain-openai>=0.1.0,<0.2.0"
+pip install "openai>=1.0.0,<2.0.0"
+
+# =============================================================================
+# 3. COMPATIBILITY VERIFICATION
+# =============================================================================
+
+python -c "
+import sys
+print(f'Python: {sys.version}')
+print('=' * 50)
+
+try:
+    import numpy
+    print(f'✅ NumPy: {numpy.__version__} (MUST be < 2.0.0)')
+    assert numpy.__version__.startswith('1.'), 'ERROR: NumPy 2.x incompatible!'
+except Exception as e:
+    print(f'❌ NumPy: {e}')
+
+try:
+    import chromadb
+    print('✅ ChromaDB: OK')
+except Exception as e:
+    print(f'❌ ChromaDB: {e}')
+
+try:
+    from sentence_transformers import SentenceTransformer
+    print('✅ SentenceTransformers: OK')
+except Exception as e:
+    print(f'❌ SentenceTransformers: {e}')
+
+try:
+    import pdfplumber
+    import pytesseract
+    print('✅ PDF Processing: OK')
+except Exception as e:
+    print(f'⚠️ PDF Processing: {e}')
+
+try:
+    import langchain
+    from langchain_community.llms import Ollama
+    print(f'✅ LangChain: {langchain.__version__}')
+except Exception as e:
+    print(f'❌ LangChain: {e}')
+
+try:
+    import pydantic
+    print(f'✅ Pydantic: {pydantic.__version__} (MUST be 2.x)')
+except Exception as e:
+    print(f'❌ Pydantic: {e}')
+
+print('\n🎉 SYSTEM READY FOR USE!')
+"
+
+# =============================================================================
+# 4. CONFIGURE OLLAMA (Local LLM)
+# =============================================================================
+
+# 1. Download and install Ollama:
+# https://ollama.ai/download/windows
+# or
+# winget install Ollama.Ollama
+
+# 2. Install local LLM model
+ollama pull llama3.1:8b
+
+# 3. Test functionality
+ollama run llama3.1:8b "Hello, how are you?"
+
+# =============================================================================
+# 5. SPECIFIC TROUBLESHOOTING
+# =============================================================================
+
+# Problem: NumPy 2.x installed
+# Solution: Force downgrade
+pip install "numpy>=1.26.0,<2.0.0" --force-reinstall
+pip install --force-reinstall chromadb
+
+# Problem: Pydantic v1/v2 conflicts
+# Solution: Clean and reinstall
+pip uninstall pydantic langchain langchain-core langchain-community -y
+pip install pydantic==2.5.3
+pip install langchain==0.2.17 langchain-core==0.2.43 langchain-community==0.2.19
+
+# Problem: ChromaDB doesn't initialize
+# Solution: Check permissions and recreate environment
+pip install --only-binary=all chromadb sentence-transformers
+
+# Clear cache in case of problems
+pip cache purge
+
+# =============================================================================
+# 6. FUNCTIONAL TESTS BY LAYERS
+# =============================================================================
+
+# Layer 1: Base vectorization system
+python -c "
+try:
+    from update_vector_db import VectorDatabaseManager
+    db = VectorDatabaseManager()
+    print('✅ Layer 1: Vector Database OK')
+except Exception as e:
+    print(f'❌ Layer 1 failed: {e}')
+"
+
+# Layer 2: Document processing
+python update_vector_db.py
+
+# Layer 3: Complete RAG system
+python query_rag_llm.py --test
+
+# Layer 4: Interactive interface
+# python query_rag_llm.py --chat
+
+# =============================================================================
+# 7. SOLUTION FOR PYTHON 3.13
+# =============================================================================
+
+# If you have problems with Python 3.13, use Python 3.12:
+# 1. Uninstall Python 3.13 (optional)
+# 2. Install Python 3.12 from python.org
+# 3. Create new environment:
+
+py -3.12 -m venv capstone_py312
+capstone_py312\Scripts\activate
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+
+# =============================================================================
+# 8. SECURITY AND QUALITY CHECKS
+# =============================================================================
+
+# Verify complete installation
+pip list | findstr -i "numpy chromadb langchain sentence"
+
+# Check conflicts
+pip check
+
+# Export working environment
+pip freeze > requirements-working.txt
+
+# Backup working environment
+python -c "
+import shutil
+import os
+if os.path.exists('capstone'):
+    shutil.copytree('capstone', 'capstone_backup', dirs_exist_ok=True)
+    print('✅ Environment backup created')
+"
+
+# =============================================================================
+# 9. USEFUL COMMANDS FOR MAINTENANCE
+# =============================================================================
+
+# Update only safe components
+pip install --upgrade pip setuptools wheel
+
+# Reinstall specific dependency
+pip install --force-reinstall chromadb
+
+# Check space used by environment
+python -c "
+import os
+def get_size(start_path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            if os.path.exists(fp):
+                total_size += os.path.getsize(fp)
+    return total_size
+
+if os.path.exists('capstone'):
+    size_mb = get_size('capstone') / (1024*1024)
+    print(f'Environment size: {size_mb:.1f} MB')
+"

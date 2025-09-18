@@ -1,0 +1,72 @@
+# requirements.txt - HR Vectorization System - Tested and Compatible Versions
+
+# =============================================================================
+# CORE DEPENDENCIES - Tested specific versions
+# =============================================================================
+
+# NumPy - MUST be < 2.0.0 for ChromaDB compatibility
+numpy>=1.26.0,<2.0.0
+
+# ChromaDB - Only works with NumPy < 2.0
+chromadb>=0.4.15,<0.5.0
+
+# Sentence Transformers - Embedding system
+sentence-transformers>=2.2.2,<3.0.0
+
+# =============================================================================
+# DOCUMENT PROCESSING - Document processing
+# =============================================================================
+
+# PDF Processing
+PyPDF2>=3.0.1,<4.0.0
+pdfplumber>=0.9.0,<1.0.0
+
+# OCR capabilities (requires Tesseract installed on system)
+pytesseract>=0.3.10,<1.0.0
+Pillow>=10.2.0,<11.0.0
+
+# =============================================================================
+# UTILITIES - Auxiliary tools
+# =============================================================================
+
+python-dateutil>=2.8.2,<3.0.0
+
+# HUGGING FACE OPTIMIZATIONS - Better download performance
+huggingface_hub[hf_xet]>=0.16.0,<1.0.0
+
+# =============================================================================
+# RAG SYSTEM - LangChain with compatible versions
+# =============================================================================
+
+# Pydantic v2 for modern compatibility
+pydantic>=2.5.0,<3.0.0
+
+# LangChain - Use 0.2.x versions (more stable than 0.3.x)
+langchain>=0.2.0,<0.3.0
+langchain-core>=0.2.0,<0.3.0
+langchain-community>=0.2.0,<0.3.0
+
+# OpenAI integration (optional)
+langchain-openai>=0.1.0,<0.2.0
+openai>=1.0.0,<2.0.0
+
+# =============================================================================
+# OPTIONAL DEPENDENCIES - Optional features
+# =============================================================================
+
+# Web interface (uncomment if needed)
+# streamlit>=1.32.0,<2.0.0
+# fastapi>=0.104.1,<1.0.0
+# uvicorn>=0.24.0,<1.0.0
+
+# Development and testing (uncomment if needed)
+# pytest>=8.0.0,<9.0.0
+# pytest-cov>=4.1.0,<5.0.0
+
+# =============================================================================
+# IMPORTANT NOTES
+# =============================================================================
+# 1. NumPy MUST be < 2.0.0 due to ChromaDB
+# 2. LangChain 0.2.x is more stable than 0.3.x
+# 3. Pydantic 2.x is required for modern LangChain
+# 4. Install in this specific order to avoid conflicts
